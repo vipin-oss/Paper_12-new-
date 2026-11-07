@@ -4,6 +4,12 @@
 \label{sec:fem}
 %% ===========================================================================
 
+This section turns the weak statement of Sec.~\ref{sec:formulation} into a
+discretization that makes the second displacement gradient admissible: the
+element, the condensation of the electrode, the memory march on modal
+coordinates and the mesh on which every number of Secs.~\ref{sec:verification}
+and~\ref{sec:results} is computed.
+
 \FloatBarrier
 \subsection{Weak form}
 \label{sec:weak}
@@ -35,7 +41,7 @@ potential degrees of freedom.
 \subsection{The BFS element and its contributions}
 \label{sec:bfs}
 
-The domain is covered by Bogner--Fox--Schmit rectangles. Each element has four
+The domain is covered by Bogner--Fox--Schmit (BFS) rectangles. Each element has four
 nodes and, per node, the eight mechanical degrees of freedom \eqref{eq:dofs}
 carried by a bicubic Hermite tensor-product interpolation, that is 32
 mechanical degrees of freedom per element, together with the four nodal
@@ -89,7 +95,9 @@ The assembled system is indefinite in the saddle-point form
   = \begin{bmatrix} \bm{f} \\ \bm{q}\end{bmatrix},
   \label{eq:saddle}
 \end{equation}
-with $C_\phi$ positive by construction. Eliminating the internal potential
+where $\bm{u}$ and $\bm{\phi}$ collect nodal displacements and potentials,
+$\bm{f}$ and $\bm{q}$ are mechanical and electrical loads, and $C_\phi$
+is positive by construction. Eliminating the internal potential
 degrees of freedom of the electrode set leaves the Schur complement
 \begin{equation}
   K_{\rm cond} = K + B\,C_\phi^{-1}B^{\mathsf T},
@@ -119,8 +127,8 @@ ground: short circuit ($V=0$) gives $Q=d^{\mathsf T}\bm{u}$, open circuit
 \end{equation}
 and $\beta=\partial Q/\partial V$ is the condensed capacitance of the electrode
 pair. In units, $d$ is a charge per unit generalized displacement
-(\si{\coulomb\per\metre} for the in-plane degrees of freedom of a strip of unit
-width), $\beta$ is a capacitance per unit width (\si{\farad\per\metre}), $Q$ is
+(\si{\coulomb\per\meter} for the in-plane degrees of freedom of a strip of unit
+width), $\beta$ is a capacitance per unit width (\si{\farad\per\meter}), $Q$ is
 a charge per unit width and $V$ a voltage. The implementation evaluates each of
 the two quantities once, from $(d,\beta)$ and the nodal solution, rather than
 integrating the electric displacement pointwise.
@@ -136,7 +144,8 @@ With the L1 weights of \eqref{eq:l1} the time-discrete problem is
   = \bm{f}^{n+1},
   \label{eq:step}
 \end{equation}
-with $K_{\rm mem}\equiv\tau^{\alpha}K$ the remembered operator -- the stiffness
+with $M$ the consistent mass matrix, $\bm{a}$ the acceleration vector, and
+$K_{\rm mem}\equiv\tau^{\alpha}K$ the remembered operator -- the stiffness
 times the relaxation time to the power $\alpha$, so that $K_{\rm mem}$ carries
 mass over time to the power $\alpha-2$ and
 $\tau^{\alpha}K\,\mathrm{D}^{\alpha}\bm{u}$ has the units of a force -- and
@@ -178,26 +187,26 @@ $\bm{a}^{0}=M^{-1}(\bm{f}^{0}-K\bm{u}^{0})$ with $\bm{v}^{0}$ supplied by the
 initial condition.
 
 Two limits check the expression. At $\alpha=1$ the weights are $b_0=1$ and
-$b_j=0$ for every $j\ge1$, not $b_j=1$: the history vanishes identically, the
-operator $\tau K\,\mathrm{D}^{1}$ becomes the backward difference
-$\tau K(\bm{u}^{n+1}-\bm{u}^{n})/\Delta t$, and \eqref{eq:step} reduces to the
-classical Kelvin--Voigt equation $M\bm{a}+K\bm{u}+\tau K\bm{v}=\bm{f}$ only up
-to the $O(\Delta t)$ error of that difference, so the scheme is first order at
-$\alpha=1$ as well and not exact there. The ring-down of
-Sec.~\ref{sec:memorystudy} reproduces the exact $\omega\tau/2$ to that accuracy
-($0.150111$, $0.150057$, $0.150029$ against $0.150000$ at $N$, $2N$ and $4N$
-steps, Sec.~\ref{sec:verification}). At $\tau\to0$ the memory matrix vanishes
-and the elastic problem is recovered. The dimensions fix the two exponents: a
-left-hand matrix written $M+\Delta t^{\alpha}\Gamma(2-\alpha)K_{\rm mem}$ would
-not have the dimensions of $M$, whereas
-$\Delta t^{2-\alpha}K_{\rm mem}/\Gamma(2-\alpha)$ does.
+$b_j=0$ for every $j\ge1$: the history vanishes identically, the operator
+$\tau K\,\mathrm{D}^{1}$ becomes the backward difference $\tau
+K(\bm{u}^{n+1}-\bm{u}^{n})/\Delta t$, and \eqref{eq:step} reduces to the
+classical Kelvin--Voigt equation $M\bm{a}+K\bm{u}+\tau K\bm{v}=\bm{f}$ up to
+the $O(\Delta t)$ error of that difference, so the scheme is first order at
+$\alpha=1$ as well. The ring-down of Sec.~\ref{sec:memorystudy} reproduces the
+exact $\omega\tau/2$ to that accuracy ($0.150111$, $0.150057$, $0.150029$
+against $0.150000$ at $N$, $2N$ and $4N$ steps, Sec.~\ref{sec:verification}).
+At $\tau\to0$ the memory matrix vanishes and the elastic problem is recovered.
+The dimensions fix the exponents: the exponent $2-\alpha$ of $\Delta t$ makes
+$\beta\Delta t^{2-\alpha}K_{\rm mem}/\Gamma(2-\alpha)$ dimensionally
+consistent with $M$.
 
 The truncation of the modal projection was measured on the ring-down of
 Sec.~\ref{sec:memorystudy}: with the memory on $K_{\rm eff}$ the motion is a
-single mode and eight modes reproduce a forty-mode projection to
-$2.3\times10^{-14}$ of the initial voltage, whereas with the memory on $K_{uu}$
-the projected memory couples the modes and eight modes differ from forty by
-$3.6\times10^{-4}$ (twenty modes: $5.9\times10^{-5}$). Eight modes are therefore
+single mode and eight modes reproduce a forty-mode projection to below
+$1\times10^{-12}$ of the initial voltage, a round-off bound rather than a
+convergent quantity, whereas with the memory on $K_{uu}$ the projected memory
+couples the modes and eight modes differ from forty by $3.0\times10^{-4}$
+(twenty modes: $5.1\times10^{-5}$). Eight modes are therefore
 converged for the $\alpha=1$ decay quoted below, and the $\alpha<1$ decays are
 read with that difference in mind.
 
@@ -254,11 +263,17 @@ $O(C/h)$, so the assembled pencil becomes badly scaled as the thickness falls;
 the implementation scales the two blocks separately before the eigensolve and
 returns the eigenpairs unscaled, and the thinnest case of
 Sec.~\ref{sec:thickness} is at a condition number of about $10^{12}$, whose
-effect is measured rather than assumed (Sec.~\ref{sec:verification}). A mesh of
-$48\times4$ elements has $245$ nodes and $1960$ mechanical degrees of freedom
-and is the workhorse of the results; refining it to $96\times4$ changes the
-frequency by $0.05\,\%$ and the coupling factor by $0.03\,\%$, and the thinnest
-strips are solved on it because the conditioning, not the number of elements,
-is the binding constraint.
+effect is measured rather than assumed (Sec.~\ref{sec:verification}). A mesh
+of $48\times4$ elements has $245$ nodes and $1960$ mechanical degrees of
+freedom and is the workhorse of the results; refining it to $96\times4$
+changes the coupling factor by $6.2\times10^{-4}$ relative to the $48\times4$
+value of the same clamped strip, and the thinnest strips are solved on it
+because the conditioning, not the number of elements, is the binding
+constraint. The assembly uses the strain and gradient matrices
+\eqref{eq:Bmat}, the gradient stiffness \eqref{eq:Kg}, the coupling
+\eqref{eq:Be} and the Schur complement \eqref{eq:saddle}, and the charge
+constraint \eqref{eq:electrode} closes the electrode of the reduced model.
+Section~\ref{sec:verification} establishes the accuracy of this discretization
+before any result is quoted.
 
 \FloatBarrier

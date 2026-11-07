@@ -17,21 +17,22 @@ the closed-form window coefficients are collected in \ref{app:Mcoeff}.
 \subsection{Nonlocal averaging window and the second-moment tensor}
 \label{sec:window}
 
-Let the strain gradient at a material point $\bm{x}$ be replaced by its average
-over a window $\mathcal{W}$ of area $A_{\mathcal W}$ centred at that point,
+Repeated indices are summed. Let the strain gradient $\eta_{ijk}$ at an
+in-plane position $\bm{x}$ be replaced by its average
+over a window $\mathcal{W}$ of area $A_{\mathcal W}$ centered at that point,
 \begin{equation}
   \bar\eta_{ijk}(\bm{x}) = \frac{1}{A_{\mathcal W}}
      \int_{\mathcal W} \eta_{ijk}(\bm{x}+\bm{s})\,\mathrm{d}\bm{s}.
   \label{eq:average}
 \end{equation}
-Expanding the integrand to second order in the window coordinate,
+Expanding the integrand to second order in the window coordinate $\bm{s}$,
 \begin{equation}
   \eta_{ijk}(\bm{x}+\bm{s}) \simeq \eta_{ijk}(\bm{x})
      + s_m\,\eta_{ijk,m}(\bm{x}) + \tfrac12 s_m s_n\,\eta_{ijk,mn}(\bm{x}),
   \label{eq:expand}
 \end{equation}
 and integrating term by term, the linear term vanishes because the window is
-centred, so
+centered, so
 \begin{equation}
   \bar\eta_{ijk} \simeq \eta_{ijk} + \tfrac12 M_{mn}\,\eta_{ijk,mn},
   \qquad
@@ -73,7 +74,7 @@ changes $M$ and with it the ratio between the directional gradient penalties.
 \label{sec:kinematics}
 
 Let $\Omega\subset\mathbb{R}^2$ be the mid-plane of a strip of thickness $h$,
-with coordinates $x_1$ along the member and $x_2$ through its thickness. The
+with length $L$, coordinates $x_1$ along the member and $x_2$ through its thickness. The
 mechanical state is the pair $(u_1,u_2)$, where $u_1$ is the in-plane
 displacement and $u_2\equiv w$ is the transverse deflection, the model retains
 the full second gradient of both components, and the strain and the strain
@@ -142,9 +143,7 @@ Form~II~\cite{Mindlin1965,Toupin1962,Mindlin1968},
 where $E_k=-\phi_{,k}$ is the electric field, $\phi$ the electric potential,
 $C_{ijkl}$ the elastic stiffness, $e_{kij}$ the piezoelectric tensor,
 $\kappa_{ij}$ the permittivity, $\mu_{kijl}$ the flexoelectric tensor,
-$\eta_{ijl}=\varepsilon_{ij,l}$ the strain gradient of \eqref{eq:strain},
-$M_{mn}$ the second moment of the averaging window and $W_{\rm ext}$ the work
-of the external loads. The total enthalpy is their sum,
+$W_{\rm ext}$ the work of the external loads. The total enthalpy is their sum,
 \begin{equation}
   \Pi = \Pi_{\rm el} + \Pi_{\rm gr} + \Pi_{\rm pz} + \Pi_{\rm dl}
         + \Pi_{\rm fx} - W_{\rm ext},
@@ -155,7 +154,7 @@ replaced by $M_{mn}$ in \eqref{eq:Egrad}. The flexoelectric tensor is taken
 isotropic and is represented by the single coefficient
 \begin{equation}
   \mu_{kijl} = \mu\,\delta_{ij}\delta_{kl},
-  \qquad \mu = 10^{-6}\ \si{\coulomb\per\metre},
+  \qquad \mu = 10^{-6}\ \si{\coulomb\per\meter},
   \label{eq:muexplicit}
 \end{equation}
 a charge per unit length, so every flexoelectric energy in this paper scales as
@@ -212,7 +211,7 @@ the potential. A sign error in any one of the three would show up as an
 asymmetry between $B$ and $B^{\mathsf T}$ rather than as a change of a number.
 
 The second term of \eqref{eq:energy} is the second-moment truncation of the
-window average of the elastic energy and not an asymptotic expansion of it:
+window average of the elastic energy:
 Taylor expanding the strain about the centroid of the window and averaging
 with $\langle s_m\rangle=0$, $\langle s_ms_n\rangle=M_{mn}$ leaves a quadratic
 functional in the strain gradient whose kernel is the second-moment tensor, so
@@ -296,8 +295,8 @@ mechanical problem: the fully condensed stiffness $K_{\rm eff}$, which
 contains the electrical boundary condition, and the short-circuit stiffness
 $K_{uu}$, which does not. They are different models of the same physics, not
 two numerical conventions, and Sec.~\ref{sec:memorystudy} quantifies the
-difference. Discretising \eqref{eq:caputo} with the L1 scheme at uniform steps
-$\Delta t$ gives
+difference. Discretizing \eqref{eq:caputo} with the L1 scheme at uniform steps
+$\Delta t$, with $n$ the step index and $t_n=n\Delta t$, gives
 \begin{equation}
   {}^{C}\!D_t^{\alpha}\varepsilon(t_n) \approx
   \frac{1}{\Gamma(2-\alpha)}\sum_{k=1}^{n} b_{n-k}\,
@@ -335,7 +334,8 @@ the potential gives the strong form on $\Omega$,
   D_{k,k} &= 0,
   \label{eq:gov2}
 \end{align}
-together with the classical traction and the higher-order double-traction
+where $\rho$ is the mass density. These equations hold together with the
+classical traction and the higher-order double-traction
 conditions on the boundary, which are stated in Sec.~\ref{sec:bc}. With
 \eqref{eq:Dexplicit} substituted, the two equations read
 \begin{equation}
@@ -376,19 +376,24 @@ therefore not additive.
 The parameters of the model are collected in Table~\ref{tab:params}. The
 elastic, piezoelectric and dielectric constants are the values measured by
 Zgonik and co-workers for $\mathrm{BaTiO_3}$~\cite{Zgonik1994}; the mass
-density is the standard crystallographic value for the same material. Five
-quantities are assumed rather than measured, and they are listed in the same
-table: the flexoelectric coefficient, taken as
-$\mu=10^{-6}$\,\si{\coulomb\per\metre}, which is the order reported for
+density is taken as the standard crystallographic value for the same material
+and is assumed here. Five quantities are assumed rather than measured, and they
+are listed in the same table: the flexoelectric coefficient, taken as
+$\mu=10^{-6}$\,\si{\coulomb\per\meter}, which is the order reported for
 perovskite ceramics, so that every flexoelectric coupling below is to be read
-as scaling with $\mu^{2}$; the window half-widths, which are held at
-$a_1/L\le0.2$ as the operating range of the second-moment truncation assumes;
+as scaling with $\mu^{2}$; the window half-widths, for which we assume
+$a/L\le0.2$ as the operating range of the second-moment truncation;
 the fractional order and the relaxation time, which are free parameters of the
 memory law and are varied over the ranges stated; and the mesh, which the
 convergence study of Sec.~\ref{sec:verification} shows to be adequate for
 every quantity quoted.
 
 \input{table_params}
+
+With the energy, the constitutive relations and the governing equations in
+place, the reductions that connect this model to the theories it generalizes
+are enumerated in Sec.~\ref{sec:limits}, and each of them is a switch on one of
+the terms written above.
 
 \begin{figure}[!t]
 \centering
